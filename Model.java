@@ -69,24 +69,18 @@ class Model {
 
 		boolean collision = distanceSq < (b0.radius + b1.radius) * (b0.radius + b1.radius);
 
-		if(collision){
-			collisionHandler(b0, b1);
-		}
-
-	}
-
-	void collisionHandler(Ball b0, Ball b1){
-		double xDiff = b0.x - b1.x;
-		double yDiff = b0.y - b1.y;
-
 		double speedX = b1.vx - b0.vx;
 		double speedY = b1.vy - b0.vy;
 		double dotProduct = xDiff * speedX + yDiff * speedY;
 
-		//If dotproduct is negative the balls are moving away from each other (no collision)
-		if(dotProduct < 0){
-			return;
+		//Positive dotproduct means balls are moving towards each other
+		if(collision && dotProduct > 0){
+			collisionHandler(b0, b1, xDiff, yDiff);
 		}
+
+	}
+
+	void collisionHandler(Ball b0, Ball b1, double xDiff, double yDiff){
 
 		//Angle between line of collision and x-axis
 		double alpha = Math.atan2(yDiff, xDiff);
@@ -124,36 +118,6 @@ class Model {
 		b1V = (2 * m0)/(m0 + m1) * b0U + (m1 - m0)/(m0 + m1) * b1U;
 
 		return new Vector(b0V, b1V);
-	}
-
-	double[] rectToPolar (double x, double y) {
-		double[] polar = new double[2];
-
-		double r = Math.sqrt(x*x + y*y);
-		double theta = Math.atan2(y, x);
-
-		polar[0] = r;
-		polar[1] = theta;
-
-		// System.out.println("(r, theta) = " + "(" +  r + ", " + theta + ")");
-
-		return polar;
-	}
-
-	double[] polarToRect(double r, double theta){
-		double[] rect = new double[2];
-		double x;
-		double y;
-
-		x = r * Math.cos(theta);
-		y = r * Math.sin(theta);
-
-		rect[0] = x;
-		rect[1] = y;
-
-		// System.out.println("(x, y) = " + "(" +  x + ", " + y + ")");
-
-		return rect;
 	}
 
 	/**
