@@ -62,11 +62,13 @@ class Model {
 
 		}
 
-		// yahoo collision detecT)
+		// yahoo collision detection
 		double xDiff = b0.x - b1.x;
 		double yDiff = b0.y - b1.y;
 		double distanceSq = xDiff * xDiff + yDiff * yDiff;
 
+		//Check if the squared distance between the (x,y)-coordinates of the balls is smaller than the squared sum of the radii
+		//smaller distance indicates collision
 		boolean collision = distanceSq < (b0.radius + b1.radius) * (b0.radius + b1.radius);
 
 		double speedX = b1.vx - b0.vx;
@@ -95,18 +97,18 @@ class Model {
 		Vector impact1 = collision1D(b0vx, b1vx, b0.m, b1.m);
 		Vector impact2 = collision1D(b0vy, b1vy, b0.m, b1.m);
 
-		//
+		//Rotate back to the original orientation
 		double newB0vx = impact1.x * Math.cos(alpha) - b0vy * Math.sin(alpha);
 		double newB0vy = impact1.y * Math.sin(alpha) + b0vy * Math.cos(alpha);
 
 		double newB1vx = impact2.x * Math.cos(alpha) - b1vy * Math.sin(alpha);
 		double newB1vy = impact2.y * Math.sin(alpha) + b1vy * Math.cos(alpha);
 
+		//Update the velocities
 		b0.vx = newB0vx;
 		b0.vy = newB0vy;
 		b1.vx = newB1vx;
 		b1.vy = newB1vy;
-
 
 	}
 
