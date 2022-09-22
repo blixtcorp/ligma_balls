@@ -53,12 +53,12 @@ class Model {
 				b.vy *= -1;
 			}
 
-			// compute new velocity according to gravity
-			b.vy -= g * deltaT;
-
 			// compute new position according to the speed of the ball
 			b.x += deltaT * b.vx;
 			b.y += deltaT * b.vy;
+
+			// compute new velocity according to gravity
+			b.vy -= g * deltaT;
 
 		}
 
@@ -78,28 +78,52 @@ class Model {
 	void collisionHandler(Ball b0, Ball b1){
 		double xDiff = b0.x - b1.x;
 		double yDiff = b0.y - b1.y;
-		double distanceSq = xDiff * xDiff + yDiff * yDiff;
 
 		double speedX = b1.vx - b0.vx;
 		double speedY = b1.vy - b0.vy;
 		double dotProduct = xDiff * speedX + yDiff * speedY;
 
-		//dotproduct is positive when balls move towards each other
-		if(dotProduct > 0){
-			double scalar = dotProduct/distanceSq;
-			double xColl = xDiff * scalar;
-			double yColl = yDiff * scalar;
-
-			double totalMass = b0.m + b1.m;
-			double collisionMass0 = 2 * b1.m / totalMass;
-			double collisionMass1 = 2 * b0.m / totalMass;
-
-			b0.vx += (collisionMass0 * xColl);
-			b0.vy += (collisionMass0 * yColl);
-
-			b1.vx += (collisionMass1 * xColl);
-			b1.vy += (collisionMass1 * yColl);
+		//If dotproduct is negative the balls are moving away from each other (no collision)
+		if(dotProduct < 0){
+			return;
 		}
+
+		//Angle between line of collision and x-axis
+		double alpha = Math.atan2(yDiff, xDiff);
+
+		//Rotation of vectors (basically linear transformation)
+		double b0vx = b0.vx * Math.cos(alpha) + b1.vy * Math.sin(alpha);
+		double b0vy = b0.vy * Math.cos(alpha) - b0.vx * Math.sin(alpha);
+
+		double b1vx = b1.vx * Math.cos(alpha) + b1.vy * Math.sin(alpha);
+		double b1vy = b1.vy * Math.cos(alpha) - b1.vy * Math.sin(alpha);
+
+		Vector impact1 = collision1D(b0vx, b1vx, b0.m, b1.m);
+		Vector impact2 = collision1D(b0vy, b1vy, b0.m, b1.m);
+
+		//
+		double newB0vx = impact1.x * Math.cos(alpha) - b0vy * Math.sin(alpha);
+		double newB0vy = impact1.y * Math.sin(alpha) + b0vy * Math.cos(alpha);
+
+		double newB1vx = impact2.x * Math.cos(alpha) - b1vy * Math.sin(alpha);
+		double newB1vy = impact2.y * Math.sin(alpha) + b1vy * Math.cos(alpha);
+
+		b0.vx = newB0vx;
+		b0.vy = newB0vy;
+		b1.vx = newB1vx;
+		b1.vy = newB1vy;
+
+
+	}
+
+	//Math taken from https://en.wikipedia.org/wiki/Elastic_collision
+	Vector collision1D(double b0U, double b1U, double m0, double m1){
+		double b0V, b1V;
+
+		b0V = (m0 - m1)/(m0 + m1) * b0U+ (2 * m1)/(m0 + m1) * b1U;
+		b1V = (2 * m0)/(m0 + m1) * b0U + (m1 - m0)/(m0 + m1) * b1U;
+
+		return new Vector(b0V, b1V);
 	}
 
 	double[] rectToPolar (double x, double y) {
@@ -154,5 +178,15 @@ class Model {
 		// added x'=dx, y'=dy, x''=ddx, and y''=ddy, m = mass
 		// , ux, uy
 		double x, y, vx, vy, radius, m;
+	}
+
+	// Simple 2D vector to dodge using cheaterman libs
+	class Vector{
+		double x, y;
+
+		Vector(double x, double y){
+			this.x = x;
+			this.y = y;
+		}
 	}
 }
