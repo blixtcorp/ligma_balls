@@ -94,15 +94,15 @@ class Model {
 		double b1vx = b1.vx * Math.cos(alpha) + b1.vy * Math.sin(alpha);
 		double b1vy = b1.vy * Math.cos(alpha) - b1.vy * Math.sin(alpha);
 
-		Vector impact1 = collision1D(b0vx, b1vx, b0.m, b1.m);
-		Vector impact2 = collision1D(b0vy, b1vy, b0.m, b1.m);
+		double[] impact1 = collision(b0vx, b1vx, b0.m, b1.m);
+		double[] impact2 = collision(b0vy, b1vy, b0.m, b1.m);
 
 		//Rotate back to the original orientation
-		double newB0vx = impact1.x * Math.cos(alpha) - b0vy * Math.sin(alpha);
-		double newB0vy = impact1.y * Math.sin(alpha) + b0vy * Math.cos(alpha);
+		double newB0vx = impact1[0] * Math.cos(alpha) - b0vy * Math.sin(alpha);
+		double newB0vy = impact1[1] * Math.sin(alpha) + b0vy * Math.cos(alpha);
 
-		double newB1vx = impact2.x * Math.cos(alpha) - b1vy * Math.sin(alpha);
-		double newB1vy = impact2.y * Math.sin(alpha) + b1vy * Math.cos(alpha);
+		double newB1vx = impact2[0] * Math.cos(alpha) - b1vy * Math.sin(alpha);
+		double newB1vy = impact2[1] * Math.sin(alpha) + b1vy * Math.cos(alpha);
 
 		//Update the velocities
 		b0.vx = newB0vx;
@@ -113,13 +113,12 @@ class Model {
 	}
 
 	//Math taken from https://en.wikipedia.org/wiki/Elastic_collision
-	Vector collision1D(double b0U, double b1U, double m0, double m1){
-		double b0V, b1V;
+	double[] collision(double b0U, double b1U, double m0, double m1){
 
-		b0V = (m0 - m1)/(m0 + m1) * b0U+ (2 * m1)/(m0 + m1) * b1U;
-		b1V = (2 * m0)/(m0 + m1) * b0U + (m1 - m0)/(m0 + m1) * b1U;
+		double b0V = (m0 - m1)/(m0 + m1) * b0U+ (2 * m1)/(m0 + m1) * b1U;
+		double b1V = (2 * m0)/(m0 + m1) * b0U + (m1 - m0)/(m0 + m1) * b1U;
 
-		return new Vector(b0V, b1V);
+		return new double[]{b0V, b1V};
 	}
 
 	/**
@@ -146,13 +145,4 @@ class Model {
 		double x, y, vx, vy, radius, m;
 	}
 
-	// Simple 2D vector to dodge using cheaterman libs
-	class Vector{
-		double x, y;
-
-		Vector(double x, double y){
-			this.x = x;
-			this.y = y;
-		}
-	}
 }
