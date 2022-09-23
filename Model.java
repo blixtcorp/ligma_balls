@@ -89,22 +89,23 @@ class Model {
 		double alpha = Math.atan2(yDiff, xDiff);
 
 		//Rotation of vectors (basically linear transformation)
-		double b0vx = b0.vx * Math.cos(alpha) + b1.vy * Math.sin(alpha);
-		double b0vy = b0.vy * Math.cos(alpha) - b0.vx * Math.sin(alpha);
+		//Math taken from https://matthew-brett.github.io/teaching/rotation_2d.html
+		double b0vx = b0.vx * Math.cos(alpha) - b0.vx * Math.sin(alpha);
+		double b0vy = b0.vy * Math.cos(alpha) + b0.vy * Math.sin(alpha);
 
-		double b1vx = b1.vx * Math.cos(alpha) + b1.vy * Math.sin(alpha);
-		double b1vy = b1.vy * Math.cos(alpha) - b1.vx * Math.sin(alpha);
+		double b1vx = b1.vx * Math.cos(alpha) - b1.vx * Math.sin(alpha);
+		double b1vy = b1.vy * Math.cos(alpha) + b1.vy * Math.sin(alpha);
 
 		//Computes the post-collision velocities in "vector" form.
 		double[] impactX = collision(b0vx, b1vx, b0.m, b1.m);
 		double[] impactY = collision(b0vy, b1vy, b0.m, b1.m);
 
 		//Rotate back to the original orientation
-		double newB0vx = impactX[0] * Math.cos(alpha) - b0vy * Math.sin(alpha);
-		double newB0vy = impactY[0] * Math.sin(alpha) + b0vy * Math.cos(alpha);
+		double newB0vx = impactX[0] * Math.cos(alpha) + impactY[0] * Math.sin(alpha);
+		double newB0vy = impactY[0] * Math.sin(alpha) - impactX[0] * Math.cos(alpha);
 
-		double newB1vx = impactX[1] * Math.cos(alpha) - b1vy * Math.sin(alpha);
-		double newB1vy = impactY[1] * Math.sin(alpha) + b1vy * Math.cos(alpha);
+		double newB1vx = impactX[1] * Math.cos(alpha) + impactY[1] * Math.sin(alpha);
+		double newB1vy = impactY[1] * Math.sin(alpha) - impactX[1] * Math.cos(alpha);
 
 		//Update the velocities
 		b0.vx = newB0vx;
